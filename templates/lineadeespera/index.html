@@ -1,0 +1,1217 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block title %}Modelo de Linea de Espera{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block header %}
+
+    <div id="container body-content">
+
+        <form class="form-horizontal num_form" id="formulario" method="post">
+            <h2>Generar Modelo Línea de Espera </h2>
+
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="inputGroupContainer">
+                    <span class="input-group-addon">Tiempo entre Llegadas</span>
+
+                    <div class="input-group-lg">
+                        <input required name="nLlegadas" placeholder="¿Cuantos Datos va a ingresar?"
+                               class="form-control input-lg" type="number">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="inputGroupContainer">
+                    <span class="input-group-addon">Tiempo de Servicio</span>
+
+                    <div class="input-group-lg">
+                        <input required name="nServicio" placeholder="¿Cuantos Datos va a ingresar?"
+                               class="form-control input-lg" type="number">
+                    </div>
+                </div>
+            </div>
+
+
+            <select hidden name="metodo">
+                <option selected value="numeros">Numeros</option>
+            </select>
+            <input class=" action-button"
+                   type="submit" value="Continuar">
+        </form>
+        {% if numeLlegadas > 0 and numeServicio > 0 %}
+            <div class="panel panel-success">
+
+                <div class="panel-heading">
+                    Formulario
+                </div>
+                <div class="panel-body">
+                    <form class="reg_form form-horizontal msf" method="post">
+                        {% csrf_token %}
+
+
+                        <div class="msf-content">
+                            <div class="msf-view">
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col-md-6 col-md-offset-3">
+
+                                            <div class="form-group">
+                                                <div class="alert alert-warning" role="alert">
+                                                    <strong>Info:</strong> Seleccionar como ingresar las Frecuencias
+                                                </div>
+                                                <div class="input-group"><span class="input-group-addon"><i
+                                                        class="glyphicon glyphicon-list"></i></span>
+                                                    <select id="metodoa" required
+                                                            onChange="mostrarFrecuencia(this.value)"
+                                                            class="form-control input-lg"
+                                                            name="metodofrecuencia" class="form-control"
+                                                            data-bind="options: availablemetodofrecuencia, selectedOptions: chosenmetodobfrecuencia, optionsCaption: 'Seleccione un método'"
+                                                            data-val="true"
+                                                            data-val-required="Request metodobfrecuencia is required.">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="card text-center">
+                                            <div class="card-header">
+                                                <label>Método</label> : <span
+                                                    data-bind="text: chosenmetodobfrecuencia"></span>
+
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="FrecuenciaAbsoluta" class="input-group">
+
+
+                                                    <div class="col-md-2 col-md-offset-2">
+                                                        Demanda LLegadas
+                                                        {% for num  in numeLlegadas %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #2dd3c8;"
+                                                                               id="demandaLlegadaA{{ num }}" required
+                                                                               type="text" value=""
+                                                                               class="form-control input-lg"
+                                                                               name="demandaLlegadasA"
+                                                                               placeholder="Demanda {{ num }}"
+                                                                               data-val="true"
+                                                                               data-val-required="demandaLlegadasA{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        Valores de Llegada
+                                                        {% for num  in numeLlegadas %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #6b54d3;"
+                                                                               id="vLlegadasA{{ num }}" required
+                                                                               type="text" step="0.01"
+                                                                               class="form-control input-lg"
+                                                                               oninput="sumar();"
+                                                                               name="valorLlegadasA"
+                                                                               placeholder="Llegadas {{ num }}"
+                                                                               data-val="true"
+                                                                               data-val-required="vLlegadasA{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+
+
+
+                                                        {% endfor %}
+
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        Demanda serivicio
+                                                        {% for num in numeServicio %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #d368c7;" required
+                                                                               type="text"
+                                                                               class="form-control input-lg"
+                                                                               id="demandaServicioA{{ num }}"
+                                                                               aria-describedby="inputGroupSuccess5Status"
+                                                                               name="demandaServicioA"
+                                                                               placeholder="Demanda {{ num }}"
+                                                                               data-val="true"
+                                                                               data-val-required="demandaServicioA{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        Valores serivicio
+                                                        {% for num in numeServicio %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #d3905f;" required
+                                                                               type="text" step="0.01"
+                                                                               class="form-control input-lg"
+                                                                               id="vServicioA{{ num }}"
+                                                                               aria-describedby="inputGroupSuccess5Status"
+                                                                               name="valorServicioA"
+                                                                               oninput="sumarServicio()"
+                                                                               placeholder="Servicio {{ num }}"
+                                                                               data-val="true"
+                                                                               onchange="addNumeros()"
+                                                                               data-val-required="vServicioA{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                        {% endfor %}
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div id="FrecuenciaRelativa" class="input-group">
+
+
+                                                    <div class="col-md-2 col-md-offset-2">
+                                                        Demanda LLegadas
+                                                        {% for num  in numeLlegadas %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #2dd3c8;"
+                                                                               id="demandaLlegada{{ num }}" required
+                                                                               type="text"
+                                                                               class="form-control input-lg"
+                                                                               name="demandaLlegadas"
+                                                                               placeholder="Demanda {{ num }}"
+                                                                               data-val="true"
+                                                                               data-val-required="demandaLlegadas{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        Valores de Llegada
+                                                        {% for num  in numeLlegadas %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #6b54d3;"
+                                                                               id="vLlegadas{{ num }}" required
+                                                                               type="text" step="0.01"
+                                                                               class="form-control input-lg monto"
+                                                                               oninput="sumar();"
+                                                                               name="valorLlegadas"
+                                                                               placeholder="Llegadas {{ num }}"
+                                                                               data-val="true"
+                                                                               data-val-required="vLlegadas{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+
+
+
+                                                        {% endfor %}
+                                                        <div class="form-group">
+                                                            <span id="txTotal"></span> Frec. Acumulada<span id="tx">
+                                            </span>
+                                                            <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                <div class="input-group">
+                                                                    <input style="border-color: #0e30d3;" id="txin"
+                                                                           required disabled
+                                                                           type="number"
+                                                                           min="1"
+                                                                           max="1"
+                                                                           class="form-control input-lg"
+                                                                           name="txin"
+                                                                           data-val="true"
+                                                                           data-val-required="txin is required">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        Demanda serivicio
+                                                        {% for num in numeServicio %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #d368c7;" required
+                                                                               type="text"
+                                                                               class="form-control input-lg"
+                                                                               id="demandaServicio{{ num }}"
+                                                                               aria-describedby="inputGroupSuccess5Status"
+                                                                               name="demandaServicio"
+                                                                               placeholder="Demanda {{ num }}"
+                                                                               data-val="true"
+                                                                               data-val-required="demandaServicio{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        Valores serivicio
+                                                        {% for num in numeServicio %}
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">{{ num }}</span>
+                                                                        <input style="border-color: #d3905f;" required
+                                                                               type="text" step="0.01"
+                                                                               class="form-control input-lg montos"
+                                                                               id="vServicio{{ num }}"
+                                                                               aria-describedby="inputGroupSuccess5Status"
+                                                                               name="valorServicio"
+                                                                               oninput="sumarServicio()"
+                                                                               placeholder="Servicio {{ num }}"
+                                                                               data-val="true"
+                                                                               onchange="addNumeros()"
+                                                                               data-val-required="vServicio{{ num }} is required">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                        {% endfor %}
+                                                        <div class="form-group">
+                                                            <span id="txTotals"></span> Frec. Acumulada<span id="txs">
+                                            </span>
+                                                            <div class="inputGroupContainer col-md-10 col-md-offset-1">
+                                                                <div class="input-group">
+                                                                    <input id="txins" required disabled
+                                                                           type="number"
+                                                                           min="1"
+                                                                           max="1"
+                                                                           class="form-control input-lg"
+                                                                           name="txin"
+                                                                           data-val="true"
+                                                                           data-val-required="txin is required">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="msf-view">
+                                <div class="row">
+                                    <div class="col-md-6 col-md-offset-3">
+                                        <div class="contenedor">
+
+                                            <div class="contenido">
+
+                                                <div class="form-group">
+                                                    <div class="alert alert-warning" role="alert">
+                                                        <strong>Info:</strong> Seleccionar Método
+                                                    </div>
+                                                    <div class="input-group"><span class="input-group-addon"><i
+                                                            class="glyphicon glyphicon-list"></i></span>
+                                                        <select id="metodoa" required onChange="mostrar(this.value)"
+                                                                class="form-control input-lg"
+                                                                name="metodoa" class="form-control"
+                                                                data-bind="options: availablemetodoa, selectedOptions: chosenmetodoa, optionsCaption: 'Seleccione un método'"
+                                                                data-val="true"
+                                                                data-val-required="Request metodoa is required.">
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card text-center">
+                                                    <div class="card-header">
+                                                        <label>Método</label> : <span
+                                                            data-bind="text: chosenmetodoa"></span>
+
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div id="Multiplicativo">
+
+                                                            <div class="card-header">
+                                                                <div class="alert alert-info" role="alert">
+                                                                    <strong>Info:</strong> El número de eventos será
+                                                                    la
+                                                                    misma cantidad de los números aleatorios (N)
+                                                                </div>
+                                                            </div>
+
+                                                            <label class="control-label">Ingrese
+                                                                datos:</label>
+
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">N</span>
+                                                                        <input onchange="valuechange()"
+                                                                               oninput="valuechange()" required id="n"
+                                                                               type="number"
+                                                                               class="form-control input-lg"
+                                                                               name="n"
+                                                                               placeholder="Cantidad a Generar"
+                                                                               data-bind="value: n"
+                                                                               data-val="true"
+                                                                               data-val-required="Request n is required.">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">A</span>
+                                                                        <input id="a" required type="number"
+                                                                               class="form-control input-lg"
+                                                                               aria-describedby="inputGroupSuccess2Status"
+                                                                               name="a"
+                                                                               placeholder="Constante Multiplicativa"
+                                                                               data-bind="value: a"
+                                                                               data-val="true"
+                                                                               data-val-required="Request a is required.">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">Xo</span>
+                                                                        <input id="xo" required type="number"
+                                                                               class="form-control input-lg"
+                                                                               aria-describedby="inputGroupSuccess3Status"
+                                                                               name="xo"
+                                                                               placeholder="Semilla Inicial"
+                                                                               data-bind="value: xo"
+                                                                               data-val="true"
+                                                                               data-val-required="Request xo is required.">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div id="divc">
+                                                                <div class="form-group">
+                                                                    <div class="inputGroupContainer">
+                                                                        <div class="input-group"><span
+                                                                                class="input-group-addon">C</span>
+                                                                            <input id="c" required type="number"
+                                                                                   class="form-control input-lg"
+                                                                                   aria-describedby="inputGroupSuccess4Status"
+                                                                                   name="c"
+                                                                                   placeholder="Constante Aditiva"
+                                                                                   data-bind="value: c"
+                                                                                   data-val="true"
+                                                                                   data-val-required="Request c is required.">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <div class="inputGroupContainer">
+                                                                    <div class="input-group"><span
+                                                                            class="input-group-addon">M</span>
+                                                                        <input id="m" required type="number"
+                                                                               class="form-control input-lg"
+                                                                               aria-describedby="inputGroupSuccess5Status"
+                                                                               name="m"
+                                                                               placeholder="Modulo"
+                                                                               data-bind="value: m"
+                                                                               data-val="true"
+                                                                               data-val-required="Request m is required.">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+
+                                                        <div id="Manual" class="input-group">
+                                                            <div class="alert alert-info" role="alert">
+                                                                <strong>Info:</strong> El número de eventos será la
+                                                                misma cantidad de los números aleatorios
+                                                            </div>
+
+
+                                                            <div class="contenedor">
+                                                                <div class="form-group">
+                                                                    <div class="inputGroupContainer">
+                                                                        <div class="input-group"><span
+                                                                                class="input-group-addon">M</span>
+                                                                            <input placeholder="Ingrese La Cantidad"
+                                                                                   oninput="addNumeros()"
+                                                                                   onloadstart="addNumeros()"
+                                                                                   onload="addNumeros()" value="5"
+                                                                                   required type="number" id="cnumeros"
+                                                                                   name="cnumeros"
+                                                                                   class="form-control input-lg">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="contenido">
+
+                                                                    <div class="form-group">
+                                                                        <div class="inputGroupContainer"><span
+                                                                                class="input-group-addon">Llegada</span>
+                                                                            <div class="input-group" id="nriLlegadas">
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="contenido">
+                                                                    <div class="form-group">
+                                                                        <div class="inputGroupContainer">
+                                                                                    <span
+                                                                                            class="input-group-addon">Servicio</span>
+                                                                            <div class="input-group" id="nriServicio">
+
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="contenido" id="simanual">
+
+
+                                                <div class="card text-center">
+                                                    <div class="card-header">
+                                                        <div class="alert alert-warning" role="alert">
+
+                                                            <strong>Método</strong> : <span
+                                                                data-bind="text: chosenmetodoa"></span>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+
+                                                    <div id="Multiplicativob" class="">
+
+                                                        <label class="control-label" for="inputGroupSuccess1">Ingrese
+                                                            datos:</label>
+
+
+                                                        <div class="input-group">
+                                                            <input style="visibility:hidden" required id="nb"
+                                                                   type="number"
+                                                                   class="form-control input-lg"
+                                                                   name="nb" placeholder="Cantidad a Generar"
+                                                                   data-bind="value: nb"
+                                                                   data-val="true"
+                                                                   data-val-required="Request nb is required.">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <div class="inputGroupContainer">
+                                                                <div class="input-group"><span
+                                                                        class="input-group-addon">N: </span>
+                                                                    <input
+                                                                            class="form-control"
+                                                                            disabled
+                                                                            id="NR">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="inputGroupContainer">
+                                                            <div class="input-group"><span
+                                                                    class="input-group-addon">A</span>
+                                                                <input id="ab" required type="number"
+                                                                       class="form-control input-lg"
+                                                                       aria-describedby="inputGroupSuccess2Status"
+                                                                       name="ab"
+                                                                       placeholder="Constante Multiplicativa"
+                                                                       data-bind="value: ab"
+                                                                       data-val="true"
+                                                                       data-val-required="Request ab is required.">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <div class="inputGroupContainer">
+                                                            <div class="input-group"><span
+                                                                    class="input-group-addon">Xo</span>
+                                                                <input id="xob" required type="number"
+                                                                       class="form-control input-lg"
+                                                                       aria-describedby="inputGroupSuccess3Status"
+                                                                       name="xob"
+                                                                       placeholder="Semilla Inicial"
+                                                                       data-bind="value: xob"
+                                                                       data-val="true"
+                                                                       data-val-required="Request xob is required.">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div id="divcd">
+                                                        <div class="form-group">
+                                                            <div class="inputGroupContainer">
+                                                                <div class="input-group"><span
+                                                                        class="input-group-addon">C</span>
+                                                                    <input id="cb" required type="number"
+                                                                           class="form-control input-lg"
+                                                                           aria-describedby="inputGroupSuccess4Status"
+                                                                           name="cb"
+                                                                           placeholder="Constante Aditiva"
+                                                                           data-bind="value: cb"
+                                                                           data-val="true"
+                                                                           data-val-required="Request cb is required.">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <div class="inputGroupContainer">
+                                                            <div class="input-group"><span
+                                                                    class="input-group-addon">M</span>
+                                                                <input id="mb" required type="number"
+                                                                       class="form-control input-lg"
+                                                                       aria-describedby="inputGroupSuccess5Status"
+                                                                       name="mb"
+                                                                       placeholder="Modulo"
+                                                                       data-bind="value: mb"
+                                                                       data-val="true"
+                                                                       data-val-required="Request mb is required.">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <select hidden name="metodo">
+                                           <option value="valor_x">Valores de xx</option>
+                                            <option selected value="celltunning">Cell tunning</option>
+                                        </select>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="msf-navigation">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <button type="submit" data-type="submit" class="btn btn-primary msf-nav-button">
+                                            Continuar
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+        {% endif %}
+
+{% endblock %}
+
+{% block content %}
+    {% if frecaLlegadas > 0 %}
+        <div class="row">
+        
+
+            <div class="col-xs-8 col-sm-6">
+                <div id="Llegadas" class="panel panel-success">
+                    <div class="panel-heading">
+                        Tabla de Datos Tiempo entre Llegadas
+                    </div>
+                    <div class="panel-body">
+                        <div class="contenedor">
+
+                            <div class="contenido">
+                                <table width="100%"
+                                       class="table table-bordered table-striped table-hover table-responsive">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Probabilidad</th>
+                                        <th>Frecuencia Acumulada</th>
+
+                                    </tr>
+                                    {% for datos  in datosLlegadas %}
+                                        <tr>
+                                            <td> {{ datos.0 }} </td>
+                                            <td>  {{ datos.1 }}</td>
+                                            <td>  {{ datos.2 }}</td>
+
+
+                                        </tr>
+
+                                    {% endfor %}
+
+
+                                </table>
+                            </div>
+
+                            <div class="contenido">
+                                <table width="100%"
+                                       class="table table-bordered table-striped table-hover table-responsive">
+
+                                    <th>Menor</th>
+                                    {% for datos  in desdeLlegadas %}
+                                        <tr>
+                                            <td> {{ datos }} </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </table>
+
+                            </div>
+
+                            <div class="contenido">
+                                <table width="100%"
+                                       class="table table-bordered table-striped table-hover table-responsive">
+
+                                    <th>Mayor</th>
+                                    {% for datos  in frecaLlegadas %}
+                                        <tr>
+                                            <td> {{ datos }} </td>
+                                        </tr>
+                                    {% endfor %}
+
+                                </table>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-8 col-sm-6">
+                <div id="Servicio" class="panel panel-success">
+                    <div class="panel-heading">
+                        Tabla de Datos Tiempo de Servicio
+                    </div>
+                    <div class="panel-body">
+                        <div class="contenido">
+                            <table width="100%" class="table table-bordered table-striped table-hover table-responsive">
+
+                                <tr>
+                                    <th>#</th>
+                                    <th>Probabilidad</th>
+                                    <th>Frecuencia Acumulada</th>
+
+                                </tr>
+                                {% for datos  in datosServicio %}
+                                    <tr>
+                                        <td> {{ datos.0 }} </td>
+                                        <td>  {{ datos.1 }}</td>
+                                        <td>  {{ datos.2 }}</td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+
+                            </table>
+                        </div>
+
+                        <div class="contenido">
+                            <table width="100%" class="table table-bordered table-striped table-hover table-responsive">
+
+                                <th>Menor</th>
+                                {% for datos  in desdeServicio %}
+                                    <tr>
+                                        <td> {{ datos }} </td>
+                                    </tr>
+                                {% endfor %}
+
+                            </table>
+
+                        </div>
+                        <div class="contenido">
+                            <table width="100%" class="table table-bordered table-striped table-hover table-responsive">
+
+                                <th>Mayor</th>
+                                {% for datos  in frecaServicio %}
+                                    <tr>
+                                        <td> {{ datos }} </td>
+                                    </tr>
+                                {% endfor %}
+
+                            </table>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+ <div class="panel panel-info">
+                    <div class="panel-heading">
+                        Tabla de Datos
+                    </div>
+
+        <div class="panel-body">
+            <div class="contenedor">
+                <div class="contenido">
+                    <table class="table table-bordered table-striped table-hover" style="width:100%">
+                        <td></td>
+                        <td colspan="2" align="center">Entre Llegadas</td>
+                        <tr>
+                            <th># Trabajo</th>
+                            <th>Ri</th>
+                            <th>Tiempo</th>
+                        </tr>
+
+                        {% for datos  in mresultadoLlegadas %}
+                            <tr>
+                                <td> {{ datos.0 }} </td>
+                                <td>  {{ datos.1 }}</td>
+                                <td>  {{ datos.2 }}</td>
+
+
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+                <div class="contenido">
+
+
+                    <table class="table table-bordered table-striped table-hover" style="width:100%">
+                        <td colspan="3" align="center"> Servicio</td>
+
+                        <tr>
+
+                            <th>Ri</th>
+                            <th>Tiempo</th>
+                        </tr>
+
+                        {% for datos  in mresultadoServicio %}
+                            <tr>
+                                <td> {{ datos.0 }} </td>
+                                <td>  {{ datos.1 }}</td>
+
+
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+                <div class="contenido">
+                    <table class="table table-bordered table-striped table-hover" style="width:100%">
+
+                        <td colspan="3" align="center">Hora</td>
+                        <td colspan="2" align="center">Tiempo</td>
+
+                        <tr>
+                            <th>llegada Exacta</th>
+                            <th>Iniciacion Servicio</th>
+                            <th>Terminacion Servicio</th>
+                            <th>Espera</th>
+                            <th>En el Sistema</th>
+
+                        </tr>
+
+                        {% for datos  in mLlegadaExacta %}
+                            <tr>
+                                <td> {{ datos.0 }} </td>
+                                <td>  {{ datos.1 }}</td>
+                                <td>  {{ datos.2 }}</td>
+                                <td>  {{ datos.3 }}</td>
+                                <td>  {{ datos.4 }}</td>
+
+
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <th>Total:</th>
+                            <th>{{ sumtEspera }}</th>
+                            <th>{{ sumtSistema }}</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <th>Promedio:</th>
+                            <th>{{ promtEspera }}</th>
+                            <th>{{ promtSistema }}</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+ </div>
+    {% endif %}
+{% endblock %}
+{% block js %}
+
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+
+
+    <!-- Latest compiled and minified JavaScript -->
+
+    <script type="text/javascript">
+
+
+        function ViewModel() {
+            var self = this;
+
+
+            self.AdditionalDetails = ko.observable('');
+            self.availablemetodoa = ko.observableArray(['Manual']);
+            self.availablemetodob = ko.observableArray(['Linealb', 'Multiplicativob']);
+            self.chosenmetodoa = ko.observable('');
+            self.chosenmetodob = ko.observable('');
+
+            self.availablemetodofrecuencia = ko.observableArray(['FrecuenciaAbsoluta', 'FrecuenciaRelativa']);
+            self.chosenmetodobfrecuencia = ko.observable('');
+
+
+        }
+
+        var viewModel = new ViewModel();
+
+        ko.applyBindings(viewModel);
+
+        $(document).on("msf:viewChanged", function (event, data) {
+
+            var progress = Math.round((data.currentIndex / data.totalSteps) * 100);
+
+            $(".progress-bar").css("width", progress + "%").attr('aria-valuenow', progress);
+            ;
+        });
+
+
+        $(".msf:first").multiStepForm();
+
+
+        function addNumeros() {
+            // Number of inputs to create
+            var number = document.getElementById("cnumeros").value;
+
+
+            // Container <div> where dynamic content will be placed
+            var containerLlegadas = document.getElementById("nriLlegadas");
+            var containerServicio = document.getElementById("nriServicio");
+            // Clear previous contents of the container
+            while (containerLlegadas.hasChildNodes()) {
+                containerLlegadas.removeChild(containerLlegadas.lastChild);
+            }
+            for (i = 0; i < number; i++) {
+                // Append a node with a random text
+                containerLlegadas.appendChild(document.createTextNode("Aleatorio " + (i + 1)));
+                // Create an <input> element, set its type and name attributes
+                var inputLlegadas = document.createElement("input");
+                inputLlegadas.type = "text";
+                inputLlegadas.step = "0.001";
+                inputLlegadas.className = "form-control input-lg";
+                inputLlegadas.name = "riLlegadas";
+                inputLlegadas.required = "true";
+                containerLlegadas.appendChild(inputLlegadas);
+                // Append a line break
+
+                containerLlegadas.appendChild(document.createElement("br"));
+            }
+            while (containerServicio.hasChildNodes()) {
+                containerServicio.removeChild(containerServicio.lastChild);
+            }
+            for (i = 0; i < number; i++) {
+                // Append a node with a random text
+                containerServicio.appendChild(document.createTextNode("Aleatorio " + (i + 1)));
+                //crear <divs>
+
+
+                // Create an <input> element, set its type and name attributes
+                var inputServicio = document.createElement("input");
+                inputServicio.type = "text";
+                inputServicio.step = "0.001";
+                inputServicio.className = "form-control input-lg";
+                inputServicio.name = "riServicio";
+                inputServicio.required = "true";
+                inputServicio.min = "0";
+                inputServicio.max = "1";
+                inputServicio.required = "true";
+                containerServicio.appendChild(inputServicio);
+                // Append a line break
+
+                containerServicio.appendChild(document.createElement("br"));
+            }
+        }
+
+        function mostrar(id) {
+
+
+
+            if (id == "Manual") {
+                $("#Multiplicativo").hide();
+                $("#Multiplicativob").hide();
+                $("#Linealb").hide();
+
+                $("#Lineal").hide();
+                $("#Manual").show();
+                $("#simanual").hide();
+
+                var n = document.getElementById("n");
+                n.setAttribute("value", 2);
+                var m = document.getElementById("m");
+                m.setAttribute("value", "2");
+                var xo = document.getElementById("xo");
+                xo.setAttribute("value", "2");
+                var a = document.getElementById("a");
+                a.setAttribute("value", 2);
+                var c = document.getElementById("c");
+                c.setAttribute("value", "2");
+
+
+                var nb = document.getElementById("nb");
+                nb.setAttribute("value", "2");
+                var mb = document.getElementById("mb");
+                mb.setAttribute("value", "2");
+                var xob = document.getElementById("xob");
+                xob.setAttribute("value", "2");
+                var ab = document.getElementById("ab");
+                ab.setAttribute("value", "2");
+                var cb = document.getElementById("cb");
+                cb.setAttribute("value", "2");
+
+            }
+
+            if (id == "") {
+
+                $("#Manual").hide();
+                $("#Multiplicativob").hide();
+                $("#Linealb").hide();
+                $("#simanual").hide();
+            }
+
+        }
+
+
+        function valuechange() {
+
+            $("#n").keyup(function () {
+                var value = $(this).val();
+                $("#nb").val(value);
+                $("#NR").val(value);
+            });
+        }
+
+        function sumar() {
+
+            var total = 0;
+
+            $(".monto").each(function () {
+
+                if (isNaN(parseFloat($(this).val()))) {
+
+                    total += 0;
+
+                } else {
+
+                    total += parseFloat($(this).val());
+
+                }
+
+            });
+
+            //alert(total);
+            document.getElementById('tx').innerHTML = total;
+
+            if (total == 1) {
+                document.getElementById('txTotal').innerHTML = "ok";
+                document.getElementById('txin').setAttribute("value", 1);
+
+            } else {
+                document.getElementById('txTotal').innerHTML = "La sumatoria debe dar 1";
+                document.getElementById('txin').setAttribute("value", 0);
+
+            }
+
+
+        }
+
+        function sumarServicio() {
+
+            var totals = 0;
+
+            $(".montos").each(function () {
+
+                if (isNaN(parseFloat($(this).val()))) {
+
+                    totals += 0;
+
+                } else {
+
+                    totals += parseFloat($(this).val());
+
+                }
+
+            });
+
+            //alert(total);
+            document.getElementById('txs').innerHTML = totals;
+
+            if (totals == 1) {
+                document.getElementById('txTotals').innerHTML = "ok";
+                document.getElementById('txins').setAttribute("value", 1);
+
+            } else {
+                document.getElementById('txTotals').innerHTML = "La sumatoria debe dar 1";
+                document.getElementById('txins').setAttribute("value", 0);
+
+            }
+
+
+        }
+
+        function mostrarFrecuencia(id) {
+
+
+            if (id == "FrecuenciaAbsoluta") {
+
+                $("#FrecuenciaAbsoluta").show();
+                $("#FrecuenciaRelativa").hide();
+                {% for num  in numeLlegadas %}
+                    var demandaLlegada{{ num }} = document.getElementById("demandaLlegada{{ num }}");
+                    demandaLlegada{{ num }}.setAttribute("value", "{{ num }}");
+                    var vLlegadas{{ num }} = document.getElementById("vLlegadas{{ num }}");
+                    vLlegadas{{ num }}.setAttribute("value", "{{ num }}");
+
+{#                    valores a 0 #}
+
+                     var demandaLlegadaA{{ num }} = document.getElementById("demandaLlegadaA{{ num }}");
+                    demandaLlegadaA{{ num }}.setAttribute("value", "");
+                    var vLlegadasA{{ num }} = document.getElementById("vLlegadasA{{ num }}");
+                    vLlegadasA{{ num }}.setAttribute("value", "");
+
+
+                {% endfor %}
+            {% for num in numeServicio %}
+             var demandaServicio{{ num }} = document.getElementById("demandaServicio{{ num }}");
+                    demandaServicio{{ num }}.setAttribute("value", "{{ num }}");
+                    var vServicio{{ num }} = document.getElementById("vServicio{{ num }}");
+                    vServicio{{ num }}.setAttribute("value", "{{ num }}");
+{#                    valores a 0#}
+                var demandaServicioA{{ num }} = document.getElementById("demandaServicioA{{ num }}");
+                    demandaServicioA{{ num }}.setAttribute("value", "");
+                    var vServicioA{{ num }} = document.getElementById("vServicioA{{ num }}");
+                    vServicioA{{ num }}.setAttribute("value", "");
+                {%  endfor %}
+
+
+            }
+            if (id == "FrecuenciaRelativa") {
+                $("#FrecuenciaAbsoluta").hide();
+
+
+                $("#FrecuenciaRelativa").show();
+                {%  for num in numeLlegadas %}
+                    var demandaLlegadaA{{ num }} = document.getElementById("demandaLlegadaA{{ num }}");
+                    demandaLlegadaA{{ num }}.setAttribute("value", "{{ num }}");
+                    var vLlegadasA{{ num }} = document.getElementById("vLlegadasA{{ num }}");
+                    vLlegadasA{{ num }}.setAttribute("value", "{{ num }}");
+
+{#                   valores  a 0 #}
+                      var demandaLlegada{{ num }} = document.getElementById("demandaLlegada{{ num }}");
+                    demandaLlegada{{ num }}.setAttribute("value", "");
+                    var vLlegadas{{ num }} = document.getElementById("vLlegadas{{ num }}");
+                    vLlegadas{{ num }}.setAttribute("value", "");
+                {% endfor %}
+
+                {% for num in numeServicio %}
+             var demandaServicioA{{ num }} = document.getElementById("demandaServicioA{{ num }}");
+                    demandaServicioA{{ num }}.setAttribute("value", "{{ num }}");
+                    var vServicioA{{ num }} = document.getElementById("vServicioA{{ num }}");
+                    vServicioA{{ num }}.setAttribute("value", "{{ num }}");
+
+{#                    valores de 0 <-#}
+                    var demandaServicio{{ num }} = document.getElementById("demandaServicio{{ num }}");
+                    demandaServicio{{ num }}.setAttribute("value", "");
+                    var vServicio{{ num }} = document.getElementById("vServicio{{ num }}");
+                    vServicio{{ num }}.setAttribute("value", "");
+                {%  endfor %}
+
+            }
+
+            if (id == "") {
+                $("#FrecuenciaAbsoluta").hide();
+                $("#FrecuenciaRelativa").hide();
+
+            }
+
+        }
+    </script>
+
+{% endblock %}
