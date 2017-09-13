@@ -1,1 +1,1 @@
-web: gunicorn TecnicasSimulacion.wsgi --log-file -
+web: gunicorn ProyectoFinalTS.wsgi --log-file -
